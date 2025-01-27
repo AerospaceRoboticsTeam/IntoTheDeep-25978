@@ -3,7 +3,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
-import org.firstinspires.ftc.teamcode.TeleOp.CompOneTeleOp;
 import org.firstinspires.ftc.teamcode.TeleOp.CompTwoTeleOp;
 
 
