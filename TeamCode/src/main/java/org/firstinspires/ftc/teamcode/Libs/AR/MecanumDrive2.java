@@ -3,12 +3,11 @@ package org.firstinspires.ftc.teamcode.Libs.AR;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 
-import org.firstinspires.ftc.teamcode.TeleOp.CompTwoTeleOp;
+import org.firstinspires.ftc.teamcode.TeleOp.TeleOp_25978;
 
 public class MecanumDrive2 {
     private double y; //value of y on joystick
@@ -37,7 +36,7 @@ public class MecanumDrive2 {
     IMU imu;
 
     LinearOpMode bot;
-    CompTwoTeleOp secondbot;
+    TeleOp_25978 secondbot;
 
     public MecanumDrive2(LinearOpMode iBot)
     {

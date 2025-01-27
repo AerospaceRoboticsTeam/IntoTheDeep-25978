@@ -3,8 +3,7 @@ package org.firstinspires.ftc.teamcode.Libs.AR;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.Libs.GoBilda.GoBildaPinpointDriver;
-import org.firstinspires.ftc.teamcode.TeleOp.CompOneTeleOp;
-import org.firstinspires.ftc.teamcode.TeleOp.CompTwoTeleOp;
+import org.firstinspires.ftc.teamcode.TeleOp.TeleOp_25978;
 
 public class MecanumDrive {
     private double y; //value of y on joystick
@@ -34,7 +33,7 @@ public class MecanumDrive {
     GoBildaPinpointDriver odo;
 
     LinearOpMode bot;
-    CompTwoTeleOp secondbot;
+    TeleOp_25978 secondbot;
 
     public MecanumDrive(LinearOpMode iBot)
     {

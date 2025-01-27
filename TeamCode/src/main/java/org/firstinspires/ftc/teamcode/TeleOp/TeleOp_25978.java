@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.Libs.AR.Arm;
 import org.firstinspires.ftc.teamcode.Libs.AR.MecanumDrive;
 
 @TeleOp(name = "CompTwo TeleOp", group = "TeleOp")
-public class CompTwoTeleOp extends LinearOpMode
+public class TeleOp_25978 extends LinearOpMode
 {
     private MecanumDrive mecanumDrive;
 
