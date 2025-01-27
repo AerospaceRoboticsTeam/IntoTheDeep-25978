@@ -3,7 +3,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
-import org.firstinspires.ftc.teamcode.TeleOp.CompTwoTeleOp;
+import org.firstinspires.ftc.teamcode.TeleOp.TeleOp_25978;
 
 
 //For the 2nd robot
@@ -22,12 +22,11 @@ public class Arm {
     private int open = 1;
     private int closed = -1;
     private int guard = 0;
-    CompTwoTeleOp bot;
+    TeleOp_25978 bot;
 
 
-    public Arm(CompTwoTeleOp iBot) {
+    public Arm(TeleOp_25978 iBot) {
         bot = iBot;
-
 
         MTR_VS = bot.hardwareMap.get(DcMotor.class, "viper_mtr");
         MTR_VS.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);  // Set Motor to 0 ticks.
