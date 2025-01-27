@@ -3,7 +3,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
-import org.firstinspires.ftc.teamcode.TeleOp.TeleOp_25978;
+import org.firstinspires.ftc.teamcode.TeleOp.CompTwoTeleOp;
 
 
 //For the 2nd robot
@@ -22,10 +22,10 @@ public class Arm {
     private int open = 1;
     private int closed = -1;
     private int guard = 0;
-    TeleOp_25978 bot;
+    CompTwoTeleOp bot;
 
 
-    public Arm(TeleOp_25978 iBot) {
+    public Arm(CompTwoTeleOp iBot) {
         bot = iBot;
 
 
