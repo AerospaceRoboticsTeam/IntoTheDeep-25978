@@ -15,7 +15,6 @@ import java.util.Locale;
 
 @Autonomous(name="Pinpoint Navigation Example", group="Pinpoint")
 //@Disabled
-
 public class SensorPinpointDriveToPoint extends LinearOpMode {
 
     DcMotor leftFrontDrive;

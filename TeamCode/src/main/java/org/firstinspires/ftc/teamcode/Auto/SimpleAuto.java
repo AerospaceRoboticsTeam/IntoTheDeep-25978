@@ -89,41 +89,34 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
  *  Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@Autonomous(name="SimpleAuto", group="Robot")
-//@Disabled
+@Autonomous(name="Auto", group="Robot")
 public class SimpleAuto extends LinearOpMode {
 
-    // initiate all classes we may need
+    // Initiate all classes we may need
+    // TODO: Initiate arm class
 
+    // Declare OpMode members
+    private DcMotor MTR_LF = null;
+    private DcMotor MTR_LB = null;
+    private DcMotor MTR_RF = null;
+    private DcMotor MTR_RB = null;
+    private Servo SRV_LC;
+    private Servo SRV_RC;
+    private IMU imu = null; // Control/Expansion Hub IMU
 
-    /* Declare OpMode members. */
-    private DcMotor         MTR_LF   = null;
-    private DcMotor         MTR_LB   = null;
-    private DcMotor         MTR_RF   = null;
-    private DcMotor         MTR_RB   = null;
-    private Servo SRV_LG, SRV_RG;
-
-    private boolean rightTurn = false;
-
-    // Dilip TODO:  Need to also create variable for Ramp and Gripper as required
-
-
-    private IMU             imu         = null;      // Control/Expansion Hub IMU
-
-
-    private double          headingError  = 0;
+    private double headingError = 0;
 
     // These variable are declared here (as class members) so they can be updated in various methods,
     // but still be displayed by sendTelemetry()
-    private double  targetHeading = 0;
-    private double  driveSpeed    = 0;
-    private double  turnSpeed     = 0;
-    private double  leftSpeed     = 0;
-    private double  rightSpeed    = 0;
-    private int     leftFrontTarget    = 0;
-    private int     leftBackTarget    = 0;
-    private int     rightFrontTarget   = 0;
-    private int     rightBackTarget   = 0;
+    private double targetHeading = 0;
+    private double driveSpeed = 0;
+    private double turnSpeed = 0;
+    private double leftSpeed = 0;
+    private double rightSpeed = 0;
+    private int leftFrontTarget = 0;
+    private int leftBackTarget = 0;
+    private int rightFrontTarget = 0;
+    private int rightBackTarget = 0;
 
     // Calculate the COUNTS_PER_INCH for your specific drive train.
     // Go to your motor vendor website to determine your motor's COUNTS_PER_MOTOR_REV
@@ -131,41 +124,36 @@ public class SimpleAuto extends LinearOpMode {
     // For example, use a value of 2.0 for a 12-tooth spur gear driving a 24-tooth spur gear.
     // This is gearing DOWN for less speed and more torque.
     // For gearing UP, use a gear ratio less than 1.0. Note this will affect the direction of wheel rotation.
-    static final double     COUNTS_PER_MOTOR_REV    = 537.7 ;   // eg: GoBILDA 312 RPM Yellow Jacket
-    static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // No External Gearing.
-    static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
-    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-            (WHEEL_DIAMETER_INCHES * 3.1415);
+    static final double COUNTS_PER_MOTOR_REV = 537.7 ; // eg: GoBILDA 312 RPM Yellow Jacket
+    static final double DRIVE_GEAR_REDUCTION = 1.0 ; // No External Gearing.
+    static final double WHEEL_DIAMETER_INCHES = 4.0 ; // For figuring circumference
+    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * 3.1415);
 
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
-    static final double     DRIVE_SPEED             = 0.4;     // Max driving speed for better distance accuracy.
-    static final double     TURN_SPEED              = 0.2;     // Max Turn speed to limit turn rate
-    static final double     HEADING_THRESHOLD       = 1.0 ;    // How close must the heading get to the target before moving to next step.
+    static final double DRIVE_SPEED = 0.4; // Max driving speed for better distance accuracy.
+    static final double TURN_SPEED = 0.2; // Max Turn speed to limit turn rate
+    static final double HEADING_THRESHOLD = 1.0 ; // How close must the heading get to the target before moving to next step.
     // Requiring more accuracy (a smaller number) will often make the turn take longer to get into the final position.
     // Define the Proportional control coefficient (or GAIN) for "heading control".
     // We define one value when Turning (larger errors), and the other is used when Driving straight (smaller errors).
     // Increase these numbers if the heading does not corrects strongly enough (eg: a heavy robot or using tracks)
     // Decrease these numbers if the heading does not settle on the correct value (eg: very agile robot with omni wheels)
-    static final double     P_TURN_GAIN            = 0.02;     // Larger is more responsive, but also less stable
-    static final double     P_DRIVE_GAIN           = 0.03;     // Larger is more responsive, but also less stable
+    static final double P_TURN_GAIN = 0.02; // Larger is more responsive, but also less stable
+    static final double P_DRIVE_GAIN = 0.03; // Larger is more responsive, but also less stable
 
     @Override
     public void runOpMode() {
 
         // Initialize the objects and drive system variables.
-
         MTR_LF  = hardwareMap.get(DcMotor.class, "left_front_mtr");
         MTR_LB  = hardwareMap.get(DcMotor.class, "left_back_mtr");
         MTR_RF  = hardwareMap.get(DcMotor.class, "right_front_mtr");
         MTR_RB  = hardwareMap.get(DcMotor.class, "right_back_mtr");
-        //Dilip TODO:  Initialize and set for Ramp and Gripper as required
-        //SRV_LG = hardwareMap.get(Servo.class, "claw");
-        //SRV_RG = hardwareMap.get(Servo.class, "wrist");
+
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-
         MTR_LF.setDirection(DcMotor.Direction.REVERSE);
         MTR_LB.setDirection(DcMotor.Direction.REVERSE);
         MTR_RF.setDirection(DcMotor.Direction.FORWARD);
@@ -174,7 +162,7 @@ public class SimpleAuto extends LinearOpMode {
         /* The next two lines define Hub orientation.
          * The Default Orientation (shown) is when a hub is mounted horizontally with the printed logo pointing UP and the USB port pointing FORWARD.
          *
-         * To Do:  EDIT these two lines to match YOUR mounting configuration.
+         * TODO: EDIT these two lines to match YOUR mounting configuration.
          */
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
         RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.UP;
@@ -193,10 +181,7 @@ public class SimpleAuto extends LinearOpMode {
 
         // Wait for the game to start (Display Gyro value while waiting)
         while (opModeInInit()) {
-            if(gamepad1.a){
-                rightTurn = true;
-            }
-            telemetry.addData("Right Turn:", rightTurn);
+            telemetry.addData("Right Turn:", "");
             telemetry.addData(">", "Robot Heading = %4.0f", getHeading());
             telemetry.update();
         }
@@ -205,16 +190,6 @@ public class SimpleAuto extends LinearOpMode {
         setDriveTrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
         imu.resetYaw();
 
-        if(rightTurn) {
-            turnToHeading(TURN_SPEED, 90.0);
-        }
-        else {
-            turnToHeading(TURN_SPEED, -90.0);
-        }
-        driveStraight(DRIVE_SPEED, 20, 0.0);
-
-
-        // Dilip TOD - ASsume this is where we park
         telemetry.addData("Path", "Complete");
         telemetry.update();
         sleep(1000);  // Pause to display last telemetry message.
@@ -241,15 +216,12 @@ public class SimpleAuto extends LinearOpMode {
      *                   0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
      *                   If a relative angle is required, add/subtract from the current robotHeading.
      */
-    public void driveStraight(double maxDriveSpeed,
-                              double distance,
-                              double heading) {
+    public void driveStraight(double maxDriveSpeed, double distance, double heading) {
 
         // Ensure that the OpMode is still active
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
-
             int moveCounts = (int)(distance * COUNTS_PER_INCH);
             leftFrontTarget = MTR_LF.getCurrentPosition() + moveCounts;
             leftBackTarget = MTR_LB.getCurrentPosition() + moveCounts;
