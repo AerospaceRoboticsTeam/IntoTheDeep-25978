@@ -89,7 +89,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
  *  Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Auto", group="Robot")
+@Autonomous(name="SimpleAuto", group="Robot")
 public class SimpleAuto extends LinearOpMode {
 
     // Initiate all classes we may need
@@ -181,10 +181,12 @@ public class SimpleAuto extends LinearOpMode {
 
         // Wait for the game to start (Display Gyro value while waiting)
         while (opModeInInit()) {
-            telemetry.addData("Right Turn:", "");
-            telemetry.addData(">", "Robot Heading = %4.0f", getHeading());
-            telemetry.update();
+            //telemetry.addData(">", "Robot Heading = %4.0f", getHeading()); // Kept for reference later
+            // TODO: Add different modes/paths
         }
+
+        // TODO: Update measurements with accurate values
+        driveStraight(DRIVE_SPEED, 24, 0.0);
 
         // Set the encoders for closed loop speed control, and reset the heading.
         setDriveTrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -212,7 +214,7 @@ public class SimpleAuto extends LinearOpMode {
      *
      * @param maxDriveSpeed MAX Speed for forward/rev motion (range 0 to +1.0) .
      * @param distance   Distance (in inches) to move from current position.  Negative distance means move backward.
-     * @param heading      Absolute Heading Angle (in Degrees) relative to last gyro reset.
+     * @param heading    Absolute Heading Angle (in Degrees) relative to last gyro reset.
      *                   0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
      *                   If a relative angle is required, add/subtract from the current robotHeading.
      */
@@ -242,8 +244,7 @@ public class SimpleAuto extends LinearOpMode {
             moveRobot(maxDriveSpeed, 0);
 
             // keep looping while we are still active, and BOTH motors are running.
-            while (opModeIsActive() &&
-                    (MTR_LF.isBusy() && MTR_LB.isBusy() && MTR_RF.isBusy() && MTR_RB.isBusy())) {
+            while (opModeIsActive() && (MTR_LF.isBusy() && MTR_LB.isBusy() && MTR_RF.isBusy() && MTR_RB.isBusy())) {
 
                 // Determine required steering to keep on heading
                 turnSpeed = getSteeringCorrection(heading, P_DRIVE_GAIN);
@@ -262,7 +263,6 @@ public class SimpleAuto extends LinearOpMode {
             // Stop all motion & Turn off RUN_TO_POSITION
             moveRobot(0, 0);
             setDriveTrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
         }
     }
 
@@ -371,9 +371,9 @@ public class SimpleAuto extends LinearOpMode {
      */
     public void moveRobot(double drive, double turn) {
         driveSpeed = drive;     // save this value as a class member so it can be used by telemetry.
-        turnSpeed  = turn;      // save this value as a class member so it can be used by telemetry.
+        turnSpeed = turn;       // save this value as a class member so it can be used by telemetry.
 
-        leftSpeed  = drive - turn;
+        leftSpeed = drive - turn;
         rightSpeed = drive + turn;
 
         // Scale speeds down if either one exceeds +/- 1.0;
@@ -435,13 +435,4 @@ public class SimpleAuto extends LinearOpMode {
         MTR_RF.setZeroPowerBehavior(behaviour);
         MTR_RB.setZeroPowerBehavior(behaviour);
     }
-
-    //Dilip TODO: code for moving ramp up from store position
-    public void moveRampUp() {
-        // ramp move pixel up for gripper to grab
-    }
-
-    public void openGripper(){} //Dilip TODO operate gripper
-    public void closeGripper(){} //Dilip TODO operate gripper
-    public void moveSlide() {} // Dilip Todo - moving slides as needed up / down etc.
 }
