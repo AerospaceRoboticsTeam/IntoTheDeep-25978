@@ -2,11 +2,10 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
 import org.firstinspires.ftc.teamcode.Libs.AR.Arm;
 import org.firstinspires.ftc.teamcode.Libs.AR.MecanumDrive;
 
-@TeleOp(name = "CompTwo TeleOp", group = "TeleOp")
+@TeleOp(name = "25978 TeleOp", group = "TeleOp")
 public class TeleOp_25978 extends LinearOpMode
 {
     private MecanumDrive mecanumDrive;
@@ -25,37 +24,26 @@ public class TeleOp_25978 extends LinearOpMode
 
         while (opModeIsActive())
         {
-            // This call is made every loop and will read the current control pad values (for driving)
-            // and update the drivetrain with those values.
-            mecanumDrive.drive();
-
-            if (gamepad1.left_trigger != 0) {
-                mecanumDrive.setBoost(1);
-            }
-            else {
-                mecanumDrive.setBoost(0.5);
-            }
+            //**************************************************************************************
+            // ---------------------Gamepad 1 Controls ---------------------------------------------
 
             //**************************************************************************************
             // ---------------------Gamepad 2 Controls ---------------------------------------------
 
-
-            if (gamepad2.y) {
-                slide.openGripper();
-            } else if (gamepad2.a){
-                slide.closeGripper();
-            }
-            else{
-                slide.guardGripper();
-            }
-
             if (gamepad2.x) {
-                slide.wristUp();
-            } else if (gamepad2.b){
-                slide.wristDown();
+                slide.setWristGuard();
             }
-            else{
-                slide.wristGrab();
+            if (gamepad2.y) {
+                slide.setWristDrop();
+            }
+            if (gamepad2.b) {
+                slide.setWristGrab();
+            }
+            if (gamepad2.left_trigger != 0) {
+                slide.openClaw();
+            }
+            if (gamepad2.right_trigger != 0 ) {
+                slide.closeClaw();
             }
 
             if (gamepad2.dpad_up){
@@ -68,20 +56,19 @@ public class TeleOp_25978 extends LinearOpMode
                 slide.moveSlideDown();
             }
 
-
-            // Todo: Remove when not needed anymore.
-            //double forward = -gamepad1.left_stick_y;
-            //double strafe = gamepad1.left_stick_x;
-            //double rotation = gamepad1.right_stick_x;
-            //mecanumDrive.move(strafe, forward, rotation);
+            //**************************************************************************************
+            //--------------------- Per Loop Update Code -------------------------------------------------
+            // Functions in this section get run every loop of the code. Anything that needs to update
+            // every loop should be in here.
+            mecanumDrive.drive(); // Update movement
+            slide.updateWrist();  // Update the arm's position
+            slide.updateClaw();   // update the claw's position
 
             //**************************************************************************************
             //--------------------- TELEMETRY Code -------------------------------------------------
-
             // Useful telemetry data in case needed for testing and to find heading of robot
             mecanumDrive.getTelemetryData();
             slide.getTelemetryData();
-            
             telemetry.update();
         }
     }

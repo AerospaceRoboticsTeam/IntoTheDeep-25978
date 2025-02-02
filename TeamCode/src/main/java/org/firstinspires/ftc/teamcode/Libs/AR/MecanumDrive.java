@@ -26,12 +26,8 @@ public class MecanumDrive {
 
     private DcMotor frontLeft, frontRight, backLeft, backRight;
 
-    // ToDo: Remove this commented code once we know the GoBilda IMU is working
-    //IMU imu;
-
     // Declare OpMode member for the Odometry Computer
     GoBildaPinpointDriver odo;
-
     LinearOpMode bot;
     TeleOp_25978 secondbot;
 
@@ -46,13 +42,6 @@ public class MecanumDrive {
         frontLeft.setDirection(DcMotor.Direction.REVERSE);
         backLeft.setDirection(DcMotor.Direction.REVERSE);
 
-        // ToDo: Remove this commented code once we know the GoBilda IMU is working
-        // imu = bot.hardwareMap.get(IMU.class, "imu");
-        // IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-        // RevHubOrientationOnRobot.LogoFacingDirection.UP,
-        // RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
-        // imu.initialize(parameters);
-
         // Initialize Gobilda Pinpoint Computer
         odo = iBot.hardwareMap.get(GoBildaPinpointDriver.class,"odo");
         odo.setOffsets(-142.0, 120.0); //these are tuned for 3110-0002-0001 Product Insight #1
@@ -61,16 +50,18 @@ public class MecanumDrive {
 
         odo.resetPosAndIMU();
 
-        stop();
+        stop(); // Set all the drive wheels to stop.
     }
 
-    public void drive(){
+    public void drive()
+    {
+        //**************************************************************************************
         //---------------------Gamepad 1 Controls/Drivetrain Movement----------------------//
         y = -(bot.gamepad1.left_stick_y) * ySensitivity; // Reversed Value
         x = bot.gamepad1.left_stick_x * xSensitivity ; // The double value on the left is a sensitivity setting (change when needed)
         rx = bot.gamepad1.right_stick_x * rxSensitivity; // Rotational Value
 
-        //TODO: Check this
+        // Todo: Check this
         // Find the first angle (Yaw) to get the robot heading.
         botHeading = odo.getHeading();
 
@@ -78,9 +69,17 @@ public class MecanumDrive {
         rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
         rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
 
+        // The Robot drive normally with nothing pressed but if you need to slow everything down, hit the left trigger on gamepad 1.
+        if (bot.gamepad1.left_trigger != 0) {
+            setBoost(0.5);
+        }
+        else {
+            setBoost(1);
+        }
+
         // Denominator is the largest motor power
         double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
-        leftFrontPower = -(rotY + rotX + rx) / denominator;
+        leftFrontPower = (rotY + rotX + rx) / denominator;
         leftBackPower = (rotY - rotX + rx) / denominator;
         rightFrontPower = (rotY - rotX - rx) / denominator;
         rightBackPower = (rotY + rotX - rx) / denominator;
@@ -98,7 +97,7 @@ public class MecanumDrive {
         backRight.setPower(0);
     }
 
-    public void setBoost(double x){
+    public void setBoost(double x) {
         boost = x;
     }
 
@@ -134,16 +133,4 @@ public class MecanumDrive {
         bot.telemetry.addData("Heading: ", ((int) Math.toDegrees(getBotHeading())) + " degrees");
         bot.telemetry.addData("Heading: ", getBotHeading());
     }
-/*
-    public void getTelemetryDataSecond() {
-        secondbot.telemetry.addData("Left Front: ", getLeftFrontPower());
-        secondbot.telemetry.addData("Left Back: ", getLeftBackPower());
-        secondbot.telemetry.addData("Right Front: ", getRightFrontPower());
-        secondbot.telemetry.addData("Right Back: ", getRightBackPower());
-        secondbot.telemetry.addData("Heading: ", ((int) Math.toDegrees(getBotHeading())) + " degrees");
-        secondbot.telemetry.addData("Heading: ", getBotHeading());
-    }
-
- */
 }
-
