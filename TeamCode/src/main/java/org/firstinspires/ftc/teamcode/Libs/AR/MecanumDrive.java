@@ -5,7 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.Libs.GoBilda.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.TeleOp.TeleOp_25978;
 
-public class MecanumDrive {
+public class MecanumDrive
+{
     private double y; //value of y on joystick
     private double x; //value of x on joystick
     private double rx; //rotation value
@@ -71,7 +72,7 @@ public class MecanumDrive {
 
         // The Robot drive normally with nothing pressed but if you need to slow everything down, hit the left trigger on gamepad 1.
         if (bot.gamepad1.left_trigger != 0) {
-            setBoost(0.5);
+            setBoost(boost);
         }
         else {
             setBoost(1);
@@ -90,42 +91,50 @@ public class MecanumDrive {
         backRight.setPower(rightBackPower * boost);
     }
 
-    public void stop() {
+    public void stop()
+    {
         frontLeft.setPower(0);
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
     }
 
-    public void setBoost(double x) {
+    public void setBoost(double x)
+    {
         boost = x;
     }
 
     // Returns power to left front motor
-    public double getLeftFrontPower() {
+    public double getLeftFrontPower()
+    {
         return leftFrontPower;
     }
 
     // Returns power to left back motor
-    public double getLeftBackPower() {
+    public double getLeftBackPower()
+    {
         return leftBackPower;
     }
 
     // Returns power to right front motor
-    public double getRightFrontPower() {
+    public double getRightFrontPower()
+    {
         return rightFrontPower;
     }
 
     // Returns power to right back motor
-    public double getRightBackPower() {
+    public double getRightBackPower()
+    {
         return rightBackPower;
     }
 
-    public double getBotHeading() {
+    public double getBotHeading()
+    {
         return botHeading;
     }
 
-    public void getTelemetryData() {
+    public void getTelemetryData()
+    {
         bot.telemetry.addData("Left Front: ", getLeftFrontPower());
         bot.telemetry.addData("Left Back: ", getLeftBackPower());
         bot.telemetry.addData("Right Front: ", getRightFrontPower());

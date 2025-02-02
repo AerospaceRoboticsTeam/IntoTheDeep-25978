@@ -25,11 +25,14 @@ public class TeleOp_25978 extends LinearOpMode
         while (opModeIsActive())
         {
             //**************************************************************************************
+            // Drive based controls are in the Mecanum.java file. We should strive to have controls related to a specific
+            // part of the robot contained in the library that contains the other functions of that specific part.
+
             // ---------------------Gamepad 1 Controls ---------------------------------------------
+            // Drive control specified in Mecanum drive functions.
 
-            //**************************************************************************************
             // ---------------------Gamepad 2 Controls ---------------------------------------------
-
+            // Wrist controls
             if (gamepad2.x) {
                 slide.setWristGuard();
             }
@@ -39,6 +42,8 @@ public class TeleOp_25978 extends LinearOpMode
             if (gamepad2.b) {
                 slide.setWristGrab();
             }
+
+            // Claw controls
             if (gamepad2.left_trigger != 0) {
                 slide.openClaw();
             }
@@ -46,18 +51,17 @@ public class TeleOp_25978 extends LinearOpMode
                 slide.closeClaw();
             }
 
+            // Linear slide controls
             if (gamepad2.dpad_up){
-                slide.moveSlideHigh();
-            } else if (gamepad2.dpad_right) {
-                slide.moveSlideMiddle();
+                slide.moveHighBasket();
             } else if (gamepad2.dpad_left) {
-                slide.moveSlideLow();
+                slide.moveLowBasket();
             } else if (gamepad2.dpad_down) {
-                slide.moveSlideDown();
+                slide.moveGrab();
             }
 
             //**************************************************************************************
-            //--------------------- Per Loop Update Code -------------------------------------------------
+            //--------------------- Per Loop Update Code -------------------------------------------
             // Functions in this section get run every loop of the code. Anything that needs to update
             // every loop should be in here.
             mecanumDrive.drive(); // Update movement
@@ -73,4 +77,3 @@ public class TeleOp_25978 extends LinearOpMode
         }
     }
 }
-
