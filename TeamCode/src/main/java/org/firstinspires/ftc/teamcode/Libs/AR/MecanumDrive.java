@@ -23,7 +23,8 @@ public class MecanumDrive
     private static double ySensitivity = 0.75;
     private static double rxSensitivity = 0.75;
 
-    private double boost = 0.5;
+    private double fullPower = 1.0;
+    private double cutPower = 0.5;
 
     private DcMotor frontLeft, frontRight, backLeft, backRight;
 
@@ -72,10 +73,10 @@ public class MecanumDrive
 
         // The Robot drive normally with nothing pressed but if you need to slow everything down, hit the left trigger on gamepad 1.
         if (bot.gamepad1.left_trigger != 0) {
-            setBoost(boost);
+            setPower(cutPower);
         }
         else {
-            setBoost(1);
+            setPower(fullPower);
         }
 
         // Denominator is the largest motor power
@@ -85,10 +86,10 @@ public class MecanumDrive
         rightFrontPower = (rotY - rotX - rx) / denominator;
         rightBackPower = (rotY + rotX - rx) / denominator;
 
-        frontLeft.setPower(leftFrontPower * boost);
-        backLeft.setPower(leftBackPower * boost);
-        frontRight.setPower(rightFrontPower * boost);
-        backRight.setPower(rightBackPower * boost);
+        frontLeft.setPower(leftFrontPower * cutPower);
+        backLeft.setPower(leftBackPower * cutPower);
+        frontRight.setPower(rightFrontPower * cutPower);
+        backRight.setPower(rightBackPower * cutPower);
     }
 
     public void stop()
@@ -99,9 +100,9 @@ public class MecanumDrive
         backRight.setPower(0);
     }
 
-    public void setBoost(double x)
+    public void setPower(double power)
     {
-        boost = x;
+        cutPower = power;
     }
 
     // Returns power to left front motor
