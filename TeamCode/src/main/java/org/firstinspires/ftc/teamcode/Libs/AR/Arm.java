@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.Libs.AR;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -23,9 +24,9 @@ public class Arm {
 
     private int dCurrentHeightPosition;
 
-    TeleOp_25978 bot;
+    LinearOpMode bot;
 
-    public Arm( TeleOp_25978 iBot )
+    public Arm( LinearOpMode iBot )
     {
         bot = iBot;
 
