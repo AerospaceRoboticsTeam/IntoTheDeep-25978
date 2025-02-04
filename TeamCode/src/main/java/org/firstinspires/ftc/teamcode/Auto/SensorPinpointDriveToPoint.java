@@ -123,57 +123,65 @@ public class SensorPinpointDriveToPoint extends LinearOpMode {
                     stateMachine = StateMachine.DRIVE_TO_TARGET_1;
                     break;
                 case DRIVE_TO_TARGET_1:
-                    if (nav.driveTo(odo.getPosition(), TARGET_1, power, 0)){
-                        // TODO: Move arm to score
+                    if (nav.driveTo(odo.getPosition(), TARGET_1, power, 0)) {
                         telemetry.addLine("In front of baskets, attempting to score");
+                        scoreHighBasket();
+                        telemetry.addLine("Dropped sample into basket, starting next step");
                         stateMachine = StateMachine.DRIVE_TO_TARGET_2;
                     }
                     break;
                 case DRIVE_TO_TARGET_2:
-                    if (nav.driveTo(odo.getPosition(), TARGET_2, power, 0)){
-                        // TODO: Move arm to pick up piece
-                        telemetry.addLine("Behind 3rd neutral sample");
+                    if (nav.driveTo(odo.getPosition(), TARGET_2, power, 0)) {
+                        telemetry.addLine("Behind 3rd neutral sample, attempting to grab");
+                        grabSample();
+                        telemetry.addLine("Grabbed sample, starting next step");
                         stateMachine = StateMachine.DRIVE_TO_TARGET_3;
                     }
                     break;
                 case DRIVE_TO_TARGET_3:
-                    if(nav.driveTo(odo.getPosition(), TARGET_3, power, 0)){
-                        // TODO: Move arm to score
+                    if(nav.driveTo(odo.getPosition(), TARGET_3, power, 0)) {
                         telemetry.addLine("In front of baskets, attempting to score");
+                        scoreHighBasket();
+                        telemetry.addLine("Dropped sample into basket, starting next step");
                         stateMachine = StateMachine.DRIVE_TO_TARGET_4;
                     }
                     break;
                 case DRIVE_TO_TARGET_4:
-                    if(nav.driveTo(odo.getPosition(), TARGET_4, power,0)){
-                        // TODO: Move arm to pick up piece
-                        telemetry.addLine("Behind 2nd neutral sample");
+                    if(nav.driveTo(odo.getPosition(), TARGET_4, power,0)) {
+                        telemetry.addLine("Behind 2nd neutral sample, attempting to grab");
+                        grabSample();
+                        telemetry.addLine("Grabbed sample, starting next step");
                         stateMachine = StateMachine.DRIVE_TO_TARGET_5;
                     }
                     break;
                 case DRIVE_TO_TARGET_5:
-                    if(nav.driveTo(odo.getPosition(), TARGET_5, power,0)){
-                        // TODO: Move arm to score
+                    if(nav.driveTo(odo.getPosition(), TARGET_5, power,0)) {
                         telemetry.addLine("In front of baskets, attempting to score");
+                        scoreHighBasket();
+                        telemetry.addLine("Dropped sample into basket, starting next step");
                         stateMachine = StateMachine.DRIVE_TO_TARGET_6;
                     }
                     break;
                 case DRIVE_TO_TARGET_6:
-                    if(nav.driveTo(odo.getPosition(), TARGET_6, power,0)){
-                        // TODO: Move arm to pick up piece
-                        telemetry.addLine("Behind 1st neutral sample");
+                    if(nav.driveTo(odo.getPosition(), TARGET_6, power,0)) {
+                        telemetry.addLine("Behind 1st neutral sample, attempting to grab");
+                        grabSample();
+                        telemetry.addLine("Grabbed sample, starting next step");
                         stateMachine = StateMachine.DRIVE_TO_TARGET_7;
                     }
                     break;
                 case DRIVE_TO_TARGET_7:
-                    // TODO: Move arm to score
-                    if(nav.driveTo(odo.getPosition(), TARGET_7, power,0)){
+                    if(nav.driveTo(odo.getPosition(), TARGET_7, power,0)) {
                         telemetry.addLine("In front of baskets, attempting to score");
+                        scoreHighBasket();
+                        telemetry.addLine("Dropped sample into basket, starting next step");
                         stateMachine = StateMachine.DRIVE_TO_TARGET_8;
                     }
                     break;
                 case DRIVE_TO_TARGET_8:
-                    if(nav.driveTo(odo.getPosition(), TARGET_8, power,0)){
-                        // TODO: Reset arm for TeleOP, or move it into submersible zone
+                    if(nav.driveTo(odo.getPosition(), TARGET_8, power,0)) {
+                        arm.setWristGrab();
+                        arm.updateWrist();
                         telemetry.addLine("Next to submersible zone, path completed");
                         stateMachine = StateMachine.COMPLETED_PATH;
                     }
@@ -194,5 +202,29 @@ public class SensorPinpointDriveToPoint extends LinearOpMode {
 
             telemetry.update();
         }
+    }
+
+    public void grabSample() {
+        // Moves wrist down and closes claw on sample to grab it, then moves wrist back up
+        arm.setWristGrab();
+        arm.updateWrist();
+        arm.closeClaw();
+        arm.updateClaw();
+        arm.setWristGuard();
+        arm.updateWrist();
+    }
+
+    public void scoreHighBasket() {
+        // Moves arm up, drops piece, and resets arm to pick up a sample later
+        arm.moveHighBasket();
+        arm.updateSlide();
+        arm.setWristDrop();
+        arm.updateWrist();
+        arm.openClaw();
+        arm.updateClaw();
+        arm.setWristGuard();
+        arm.updateWrist();
+        arm.moveGrab();
+        arm.updateSlide();
     }
 }
