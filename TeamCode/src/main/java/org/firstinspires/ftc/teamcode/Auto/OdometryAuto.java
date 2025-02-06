@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.Libs.GoBilda.GoBildaPinpointDriver;
 
 import java.util.Locale;
 
-@Autonomous(name="Pinpoint Navigation Example", group="Pinpoint")
-public class SensorPinpointDriveToPoint extends LinearOpMode {
+@Autonomous(name="Main Auto", group="Pinpoint")
+public class OdometryAuto extends LinearOpMode {
 
     // Initialize drive motors
     DcMotor MTR_LF;
