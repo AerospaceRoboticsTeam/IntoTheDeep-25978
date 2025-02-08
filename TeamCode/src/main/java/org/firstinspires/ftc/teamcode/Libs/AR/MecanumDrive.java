@@ -73,10 +73,10 @@ public class MecanumDrive
 
         // The Robot drive normally with nothing pressed but if you need to slow everything down, hit the left trigger on gamepad 1.
         if (bot.gamepad1.left_trigger != 0) {
-            setPower(cutPower);
+            setPower(fullPower);
         }
         else {
-            setPower(fullPower);
+            setPower(cutPower);
         }
 
         // Denominator is the largest motor power
