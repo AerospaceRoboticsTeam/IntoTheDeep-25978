@@ -47,23 +47,23 @@ public class OdometryLeftMainAuto extends LinearOpMode {
     // Targets/Points along the robot's drive path
 
     // Against wall, facing opposing team's side
-    static final Pose2D START_POS = new Pose2D(DistanceUnit.INCH, -36, -63, AngleUnit.DEGREES, 180);
+    static final Pose2D START_POS = new Pose2D(DistanceUnit.MM, -36 * 25.4, -63 * 25.4, AngleUnit.DEGREES, 180);
     // Behind tape, facing baskets
-    static final Pose2D TARGET_1 = new Pose2D(DistanceUnit.INCH, -53, -53, AngleUnit.DEGREES, 225);
+    static final Pose2D TARGET_1 = new Pose2D(DistanceUnit.MM, -53 * 25.4, -53 * 25.4, AngleUnit.DEGREES, 225);
     // In front of 3rd neutral piece
-    static final Pose2D TARGET_2 = new Pose2D(DistanceUnit.INCH, -36, -26, AngleUnit.DEGREES, 180);
+    static final Pose2D TARGET_2 = new Pose2D(DistanceUnit.MM, -36 * 25.4, -26 * 25.4, AngleUnit.DEGREES, 180);
     // Behind tape, facing baskets
-    static final Pose2D TARGET_3 = new Pose2D(DistanceUnit.INCH,-53,-53, AngleUnit.DEGREES,225);
+    static final Pose2D TARGET_3 = new Pose2D(DistanceUnit.MM,-53 * 25.4,-53 * 25.4, AngleUnit.DEGREES,225);
     // In front of 2nd neutral piece
-    static final Pose2D TARGET_4 = new Pose2D(DistanceUnit.INCH, -46, -26, AngleUnit.DEGREES, 180);
+    static final Pose2D TARGET_4 = new Pose2D(DistanceUnit.MM, -46 * 25.4, -26 * 25.4, AngleUnit.DEGREES, 180);
     // Behind tape, facing baskets
-    static final Pose2D TARGET_5 = new Pose2D(DistanceUnit.INCH, -53, -53, AngleUnit.DEGREES, 225);
+    static final Pose2D TARGET_5 = new Pose2D(DistanceUnit.MM, -53 * 25.4, -53 * 25.4, AngleUnit.DEGREES, 225);
     // In front of 1st neutral piece
-    static final Pose2D TARGET_6 = new Pose2D(DistanceUnit.INCH, -56, -26, AngleUnit.DEGREES, 180);
+    static final Pose2D TARGET_6 = new Pose2D(DistanceUnit.MM, -56 * 25.4, -26 * 25.4, AngleUnit.DEGREES, 180);
     // Behind tape, facing baskets
-    static final Pose2D TARGET_7 = new Pose2D(DistanceUnit.INCH, -53, -53, AngleUnit.DEGREES, 225);
+    static final Pose2D TARGET_7 = new Pose2D(DistanceUnit.MM, -53 * 25.4, -53 * 25.4, AngleUnit.DEGREES, 225);
     // In front of left side of submersible zone
-    static final Pose2D TARGET_8 = new Pose2D(DistanceUnit.INCH, -28, 0, AngleUnit.DEGREES, 0);
+    static final Pose2D TARGET_8 = new Pose2D(DistanceUnit.MM, -28 * 25.4, 0 * 25.4, AngleUnit.DEGREES, 0);
 
     private final double power = 0.2;
 
@@ -93,14 +93,16 @@ public class OdometryLeftMainAuto extends LinearOpMode {
         MTR_LB.setDirection(DcMotorSimple.Direction.REVERSE);
 
         odo = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
+        odo.resetPosAndIMU();
+
         odo.setOffsets(-84.0, -168.0); //these are tuned for 3110-0002-0001 Product Insight #1
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
         // Initializes robot's position
-        odo.recalibrateIMU();
         odo.setPosition(START_POS);
         telemetry.addData("Position: ", odo.getPosition());
+        telemetry.addData("StartPOS: ", START_POS);
 
         //nav.setXYCoefficients(0.02,0.002,0.0,DistanceUnit.MM,12);
         //nav.setYawCoefficients(1,0,0.0, AngleUnit.DEGREES,2);
