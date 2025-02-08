@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.Libs.GoBilda.GoBildaPinpointDriver;
 
 import java.util.Locale;
 
-@Autonomous(name="Main Auto", group="Pinpoint")
-public class OdometryAuto extends LinearOpMode {
+@Autonomous(name="Main Left Auto", group="PinpointAuto")
+public class OdometryLeftMainAuto extends LinearOpMode {
 
     // Initialize drive motors
     DcMotor MTR_LF;
@@ -65,7 +65,7 @@ public class OdometryAuto extends LinearOpMode {
     // In front of left side of submersible zone
     static final Pose2D TARGET_8 = new Pose2D(DistanceUnit.INCH, -28, 0, AngleUnit.DEGREES, 0);
 
-    private final double power = 0.7;
+    private final double power = 0.2;
 
     @Override
     public void runOpMode() {
@@ -77,7 +77,12 @@ public class OdometryAuto extends LinearOpMode {
         MTR_LB = hardwareMap.get(DcMotor.class, "left_back_mtr");
         MTR_RB = hardwareMap.get(DcMotor.class, "right_back_mtr");
 
+        // Initialize arm and claw
         arm = new Arm(this);
+        arm.closeClaw();
+        arm.updateClaw();
+        arm.setWristGuard();
+        arm.updateWrist();
 
         MTR_LF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MTR_RF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -88,13 +93,14 @@ public class OdometryAuto extends LinearOpMode {
         MTR_LB.setDirection(DcMotorSimple.Direction.REVERSE);
 
         odo = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
-        odo.setOffsets(-142.0, 120.0); //these are tuned for 3110-0002-0001 Product Insight #1
+        odo.setOffsets(-84.0, -168.0); //these are tuned for 3110-0002-0001 Product Insight #1
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
         // Initializes robot's position
         odo.recalibrateIMU();
         odo.setPosition(START_POS);
+        telemetry.addData("Position: ", odo.getPosition());
 
         //nav.setXYCoefficients(0.02,0.002,0.0,DistanceUnit.MM,12);
         //nav.setYawCoefficients(1,0,0.0, AngleUnit.DEGREES,2);
@@ -115,7 +121,7 @@ public class OdometryAuto extends LinearOpMode {
         waitForStart();
         resetRuntime();
 
-        while (opModeIsActive()) {
+        while(opModeIsActive()) {
             odo.update();
 
             switch (stateMachine){
@@ -123,7 +129,7 @@ public class OdometryAuto extends LinearOpMode {
                     stateMachine = StateMachine.DRIVE_TO_TARGET_1;
                     break;
                 case DRIVE_TO_TARGET_1:
-                    if (nav.driveTo(odo.getPosition(), TARGET_1, power, 0)) {
+                    if (nav.driveTo(odo.getPosition(), TARGET_1, power, 10)) {
                         telemetry.addLine("In front of baskets, attempting to score");
                         scoreHighBasket();
                         telemetry.addLine("Dropped sample into basket, starting next step");
