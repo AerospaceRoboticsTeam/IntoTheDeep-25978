@@ -42,6 +42,8 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
+import org.firstinspires.ftc.teamcode.Libs.AR.Arm;
+
 /*
  *  This OpMode illustrates the concept of driving an autonomous path based on Gyro (IMU) heading and encoder counts.
  *  The code is structured as a LinearOpMode
@@ -90,12 +92,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
  *  Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@Autonomous(name="SimpleAuto", group="Robot")
-@Disabled
+@Autonomous(name="Simple Left Auto", group="SimpleAuto")
 public class SimpleAuto extends LinearOpMode {
 
     // Initiate all classes we may need
-    // TODO: Initiate arm class
+    private Arm arm = new Arm(this);
 
     // Declare OpMode members
     private DcMotor MTR_LF = null;
@@ -175,28 +176,29 @@ public class SimpleAuto extends LinearOpMode {
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(orientationOnRobot));
 
-        // Ensure the robot is stationary.  Reset the encoders and set the motors to BRAKE mode
+        // Ensure the robot is stationary. Reset the encoders and set the motors to BRAKE mode
         setDriveTrainMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setDriveTrainZeroPower(DcMotor.ZeroPowerBehavior.FLOAT);
-
-
-
-        // Wait for the game to start (Display Gyro value while waiting)
-        while (opModeInInit()) {
-            //telemetry.addData(">", "Robot Heading = %4.0f", getHeading()); // Kept for reference later
-            // TODO: Add different modes/paths
-        }
-
-        // TODO: Update measurements with accurate values
-        driveStraight(DRIVE_SPEED, 24, 0.0);
+        setDriveTrainZeroPower(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Set the encoders for closed loop speed control, and reset the heading.
         setDriveTrainMode(DcMotor.RunMode.RUN_USING_ENCODER);
         imu.resetYaw();
 
+        // Wait for the game to start (Display Gyro value while waiting)
+        while (opModeInInit()) {
+            telemetry.addData("Status:", "Waiting for start");
+        }
+
+        arm.setWristGuard();
+        arm.updateWrist();
+        driveStraight(DRIVE_SPEED, 48, 0.0);
+        turnToHeading(P_TURN_GAIN, 90);
+        driveStraight(DRIVE_SPEED, 6.0, 90);
+        arm.setWristDrop();
+        arm.updateWrist();
+
         telemetry.addData("Path", "Complete");
         telemetry.update();
-        sleep(1000);  // Pause to display last telemetry message.
     }
 
     /*
