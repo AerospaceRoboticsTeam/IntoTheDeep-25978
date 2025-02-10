@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Libs.GoBilda.GoBildaPinpointDriver;
 
 import java.util.Locale;
 
-@Autonomous(name="Main Left Auto", group="PinpointAuto")
+@Autonomous(name="Main Left Auto", group="CompAuto")
 public class OdometryLeftMainAuto extends LinearOpMode {
 
     // Initialize drive motors
