@@ -10,9 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Libs.GoBilda.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.Libs.GoBilda.DriveToPoint;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.function.*;
 
 public class OdometryAutoPath {
     public ArrayList<Waypoint> path = new ArrayList<>();
@@ -37,7 +35,7 @@ public class OdometryAutoPath {
         this.rightBackMotor = rightBackMotor;
     }
 
-    public void addTarget(Pose2D target, Consumer<Void>[] functions, Consumer<Void> telemetry) {
+    public void addWaypoint(Pose2D target, Runnable[] functions, Runnable telemetry) {
         Waypoint newWaypoint = new Waypoint(target, functions, telemetry);
         path.add(newWaypoint);
     }
@@ -56,11 +54,11 @@ public class OdometryAutoPath {
                 rightBackMotor.setPower(nav.getMotorPower(DriveToPoint.DriveMotor.RIGHT_BACK));
             }
 
-            for(Consumer<Void> function : currentWaypoint.functions) {
-                function.accept(null);
+            for(Runnable function : currentWaypoint.functions) {
+                function.run();
             }
 
-            currentWaypoint.telemetry.accept(null);
+            currentWaypoint.telemetry.run();
             bot.telemetry.update();
         }
     }
