@@ -123,6 +123,8 @@ public class OdometryLeftMainAuto extends LinearOpMode {
         waitForStart();
         resetRuntime();
 
+        odo.setPosition(START_POS);
+
         while(opModeIsActive()) {
             odo.update();
 
