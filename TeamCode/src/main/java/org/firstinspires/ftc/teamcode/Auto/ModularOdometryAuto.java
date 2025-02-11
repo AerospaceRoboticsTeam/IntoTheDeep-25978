@@ -41,6 +41,7 @@ public class ModularOdometryAuto extends LinearOpMode {
     static final Pose2D START_POS = new Pose2D(DistanceUnit.INCH, -36, -63, AngleUnit.DEGREES, 180);
     // Behind tape, facing baskets
     static final Pose2D TARGET_1 = new Pose2D(DistanceUnit.INCH, -53, -53, AngleUnit.DEGREES, 225);
+    Runnable T1_Telemetry = () -> telemetry.addLine("");
     // In front of 3rd neutral piece
     static final Pose2D TARGET_2 = new Pose2D(DistanceUnit.INCH, -36, -26, AngleUnit.DEGREES, 180);
     // Behind tape, facing baskets
@@ -55,8 +56,6 @@ public class ModularOdometryAuto extends LinearOpMode {
     static final Pose2D TARGET_7 = new Pose2D(DistanceUnit.INCH, -53, -53, AngleUnit.DEGREES, 225);
     // In front of left side of submersible zone
     static final Pose2D TARGET_8 = new Pose2D(DistanceUnit.INCH, -28, 0, AngleUnit.DEGREES, 0);
-
-    private final double power = 0.2;
 
     @Override
     public void runOpMode() {
@@ -93,6 +92,14 @@ public class ModularOdometryAuto extends LinearOpMode {
         //nav.setXYCoefficients(0.02,0.002,0.0,DistanceUnit.MM,12);
         //nav.setYawCoefficients(1,0,0.0, AngleUnit.DEGREES,2);
         nav.setDriveType(DriveToPoint.DriveType.MECANUM);
+
+        // Method references
+        Runnable grabSample = this::grabSample;
+        Runnable scoreHighBasket = this::scoreHighBasket;
+
+        // Constructs path
+        OdometryAutoPath autoPath = new OdometryAutoPath(this, odo, MTR_LF, MTR_RF, MTR_LB, MTR_RB);
+        autoPath.addWaypoint(TARGET_1, new Runnable[] {scoreHighBasket}, T1_Telemetry);
 
         telemetry.addData("Status", "Initialized");
         telemetry.addData("X offset", odo.getXOffset());
