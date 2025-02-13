@@ -12,7 +12,7 @@ public class Arm
     private static final double currentSlidePower = 0.7;
     private int slideGrab = 10;
     private int slideLow = 2200;
-    private int slideHigh = 4000;
+    private int slideHigh = 4100;
 
     private Servo SRV_CLAW;
     private double clawOpen = 0.0;
@@ -22,7 +22,7 @@ public class Arm
     private Servo SRV_WRIST;
     private double wristGuard = 0.0;
     private double wristDrop = 0.11;
-    private double wristGrab = 0.22;
+    private double wristGrab = 0.21;
     private double currentWristPosition;
 
     LinearOpMode bot;
