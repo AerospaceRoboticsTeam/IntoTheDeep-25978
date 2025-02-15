@@ -65,7 +65,7 @@ public class OdometryLeftMainAuto extends LinearOpMode {
     // In front of left side of submersible zone
     static final Pose2D TARGET_8 = new Pose2D(DistanceUnit.MM, -28 * 25.4, 0 * 25.4, AngleUnit.DEGREES, 0);
 
-    private final double power = 0.2;
+    private final double power = 0.35;
 
     @Override
     public void runOpMode() {
@@ -81,8 +81,6 @@ public class OdometryLeftMainAuto extends LinearOpMode {
         arm = new Arm(this);
         arm.closeClaw();
         arm.updateClaw();
-        arm.setWristGuard();
-        arm.updateWrist();
 
         MTR_LF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MTR_RF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -95,15 +93,14 @@ public class OdometryLeftMainAuto extends LinearOpMode {
         odo = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
         odo.resetPosAndIMU();
 
-        odo.setOffsets(-84.0, -168.0); //these are tuned for 3110-0002-0001 Product Insight #1
+        odo.setOffsets(-84.0, -168.0);
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        // TODO: Check encoder directions
-        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
         // Initializes robot's position
         odo.setPosition(START_POS);
-        telemetry.addData("Position: ", odo.getPosition());
-        telemetry.addData("StartPOS: ", START_POS);
+        telemetry.addData("Position", odo.getPosition());
+        telemetry.addData("Start Position", START_POS);
 
         //nav.setXYCoefficients(0.02,0.002,0.0,DistanceUnit.MM,12);
         //nav.setYawCoefficients(1,0,0.0, AngleUnit.DEGREES,2);
@@ -126,6 +123,10 @@ public class OdometryLeftMainAuto extends LinearOpMode {
 
         odo.setPosition(START_POS);
 
+        // Sets wrist to guard position to prepare for dropping a sample
+        arm.setWristGuard();
+        arm.updateWrist();
+
         while(opModeIsActive()) {
             odo.update();
 
@@ -134,7 +135,7 @@ public class OdometryLeftMainAuto extends LinearOpMode {
                     stateMachine = StateMachine.DRIVE_TO_TARGET_1;
                     break;
                 case DRIVE_TO_TARGET_1:
-                    if (nav.driveTo(odo.getPosition(), TARGET_1, power, 10)) {
+                    if (nav.driveTo(odo.getPosition(), TARGET_1, power, 0)) {
                         telemetry.addLine("In front of baskets, attempting to score");
                         scoreHighBasket();
                         telemetry.addLine("Dropped sample into basket, starting next step");
@@ -205,7 +206,7 @@ public class OdometryLeftMainAuto extends LinearOpMode {
             MTR_LB.setPower(nav.getMotorPower(DriveToPoint.DriveMotor.LEFT_BACK));
             MTR_RB.setPower(nav.getMotorPower(DriveToPoint.DriveMotor.RIGHT_BACK));
 
-            telemetry.addData("Current state:", stateMachine);
+            telemetry.addData("Current state", stateMachine);
 
             Pose2D pos = odo.getPosition();
             String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.MM), pos.getY(DistanceUnit.MM), pos.getHeading(AngleUnit.DEGREES));
@@ -218,24 +219,35 @@ public class OdometryLeftMainAuto extends LinearOpMode {
     public void grabSample() {
         // Moves wrist down and closes claw on sample to grab it, then moves wrist back up
         arm.setWristGrab();
-        arm.updateWrist();
+        while(arm.wristIsMoving() && opModeIsActive()) {
+            arm.updateWrist();
+        }
         arm.closeClaw();
-        arm.updateClaw();
+        while(arm.clawIsMoving() && opModeIsActive()) {
+            arm.updateClaw();
+        }
         arm.setWristGuard();
-        arm.updateWrist();
+        while(arm.wristIsMoving() && opModeIsActive()) {
+            arm.updateWrist();
+        }
     }
 
     public void scoreHighBasket() {
         // Moves arm up, drops piece, and resets arm to pick up a sample later
         arm.moveHighBasket();
         arm.updateSlide();
+        while(arm.slideIsMoving() && opModeIsActive()) {}
         arm.setWristDrop();
         arm.updateWrist();
+        while(arm.wristIsMoving() && opModeIsActive()) {}
         arm.openClaw();
         arm.updateClaw();
+        while(arm.clawIsMoving() && opModeIsActive()) {}
         arm.setWristGuard();
         arm.updateWrist();
+        while(arm.wristIsMoving() && opModeIsActive()) {}
         arm.moveGrab();
-        arm.updateSlide();
+        arm.updateSlide(    );
+        while(arm.slideIsMoving() && opModeIsActive()) {}
     }
 }
