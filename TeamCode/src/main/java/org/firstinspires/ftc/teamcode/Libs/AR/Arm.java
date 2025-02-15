@@ -10,7 +10,7 @@ public class Arm
     private DcMotor MTR_VS;
     private int currentSlidePosition = 10;
     private static final double currentSlidePower = 0.7;
-    private int slideGrab = 10;
+    private int slideGrab = 30;
     private int slideLow = 2200;
     private int slideHigh = 4100;
 
@@ -34,7 +34,7 @@ public class Arm
         MTR_VS = bot.hardwareMap.get(DcMotor.class, "viper_mtr");
         MTR_VS.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);  // Set Motor to 0 ticks.
         MTR_VS.setDirection(DcMotor.Direction.REVERSE);
-        MTR_VS.setPower(currentSlidePower);
+        //MTR_VS.setPower(currentSlidePower);
         MTR_VS.setTargetPosition(currentSlidePosition);
         MTR_VS.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -87,7 +87,43 @@ public class Arm
    }
 
     public void updateSlide() {
+
+        bot.telemetry.addData("status", "in update slide" + currentSlidePosition );
+        if (!slideIsMoving())
+        {
+            bot.telemetry.addData("SlideStopped", "Slide at" + currentSlidePosition );
+        }
+
+        if (currentSlidePosition == slideGrab)
+        {
+            if (!slideIsMoving() && MTR_VS.getPower()!= 0.0)
+            {
+                bot.telemetry.addData("Status", "Slide Not Moving" );
+                MTR_VS.setPower(0.0);
+                MTR_VS.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                return;
+            }
+            else {
+                bot.telemetry.addData("Status", "Slide Moving to Grab" );
+                //MTR_VS.setPower(currentSlidePower);
+            }
+            bot.telemetry.addData("Status", "Slide Moving (Not Grab)" );
+        }
+        else
+        {
+            bot.telemetry.addData("Status", "Slide Moving (not Grab)" );
+            //MTR_VS.setPower(currentSlidePower);
+        }
+
         MTR_VS.setTargetPosition(currentSlidePosition);
+
+        if (MTR_VS.getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
+            MTR_VS.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            MTR_VS.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
+        if (MTR_VS.getPower()!= currentSlidePower) {
+            MTR_VS.setPower(currentSlidePower);
+        }
     }
 
     public boolean slideIsMoving() {
