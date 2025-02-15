@@ -52,7 +52,7 @@ public class Arm
     }
 
     public void updateClaw() {
-        SRV_CLAW.setPosition( currentClawPosition );
+        SRV_CLAW.setPosition(currentClawPosition);
     }
 
     public void setWristGuard() {
@@ -68,7 +68,7 @@ public class Arm
     }
 
     public void updateWrist() {
-        SRV_WRIST.setPosition( currentWristPosition);
+        SRV_WRIST.setPosition(currentWristPosition);
     }
 
     public void moveGrab() {
@@ -87,7 +87,35 @@ public class Arm
    }
 
     public void updateSlide() {
-        MTR_VS.setTargetPosition( currentSlidePosition);;
+        MTR_VS.setTargetPosition(currentSlidePosition);
+    }
+
+    public boolean slideIsMoving() {
+        return MTR_VS.isBusy();
+    }
+
+    public boolean wristIsMoving() {
+        if(SRV_WRIST.getDirection() == Servo.Direction.FORWARD) {
+            return SRV_WRIST.getPosition() < currentWristPosition;
+        }
+        else if(SRV_WRIST.getDirection() == Servo.Direction.REVERSE) {
+            return SRV_WRIST.getPosition() > currentWristPosition;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public boolean clawIsMoving() {
+        if(SRV_CLAW.getDirection() == Servo.Direction.FORWARD) {
+            return SRV_CLAW.getPosition() < currentClawPosition;
+        }
+        else if(SRV_CLAW.getDirection() == Servo.Direction.REVERSE) {
+            return SRV_CLAW.getPosition() > currentClawPosition;
+        }
+        else {
+            return false;
+        }
     }
 
     public void getTelemetryData() {
