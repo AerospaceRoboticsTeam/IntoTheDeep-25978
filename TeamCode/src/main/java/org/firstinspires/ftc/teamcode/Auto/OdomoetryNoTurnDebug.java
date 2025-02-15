@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Libs.GoBilda.GoBildaPinpointDriver;
 
 import java.util.Locale;
 
-@Autonomous(name="Main Left Auto", group="CompAuto")
+@Autonomous(name="No Turn Debug Auto", group="DebugAuto")
 public class OdomoetryNoTurnDebug extends LinearOpMode {
 
     // Initialize drive motors
@@ -83,7 +83,7 @@ public class OdomoetryNoTurnDebug extends LinearOpMode {
         odo.setOffsets(-84.0, -168.0); //these are tuned for 3110-0002-0001 Product Insight #1
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         // TODO: Check encoder directions
-        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
         // Initializes robot's position
         odo.setPosition(START_POS);
