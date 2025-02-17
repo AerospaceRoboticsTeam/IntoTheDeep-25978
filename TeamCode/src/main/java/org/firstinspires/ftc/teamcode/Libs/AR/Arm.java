@@ -1,18 +1,18 @@
 package org.firstinspires.ftc.teamcode.Libs.AR;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.TeleOp.TeleOp_25978;
-
 public class Arm
 {
     private DcMotor MTR_VS;
-    private int currentSlidePosition = 10;
-    private static final double currentSlidePower = 0.7;
-    private int slideGrab = 30;
+    private int slideGrab = 50;
     private int slideLow = 2200;
     private int slideHigh = 4100;
+    private int currentSlidePosition = 50;
+    private boolean slideChangingState = false;
+    private static final double maxSlidePower = 0.7;
 
     private Servo SRV_CLAW;
     private double clawOpen = 0.0;
@@ -34,9 +34,10 @@ public class Arm
         MTR_VS = bot.hardwareMap.get(DcMotor.class, "viper_mtr");
         MTR_VS.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);  // Set Motor to 0 ticks.
         MTR_VS.setDirection(DcMotor.Direction.REVERSE);
-        //MTR_VS.setPower(currentSlidePower);
         MTR_VS.setTargetPosition(currentSlidePosition);
         MTR_VS.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        MTR_VS.setPower(maxSlidePower);
+        MTR_VS.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         SRV_CLAW = bot.hardwareMap.get(Servo.class, "claw");
 
@@ -72,58 +73,43 @@ public class Arm
     }
 
     public void moveGrab() {
-        currentSlidePosition = slideGrab;
         bot.telemetry.addData("Status", "In moveGrab" );
+
+        currentSlidePosition = slideGrab;
+        slideChangingState = true;
     }
 
     public void moveLowBasket() {
-        currentSlidePosition = slideLow;
         bot.telemetry.addData("Status", "In moveLowBasket" );
+
+        currentSlidePosition = slideLow;
+        slideChangingState = true;
     }
 
     public void moveHighBasket() {
-        currentSlidePosition = slideHigh;
         bot.telemetry.addData("Status", "In moveHighBasket" );
+
+        currentSlidePosition = slideHigh;
+        slideChangingState = true;
    }
 
-    public void updateSlide() {
+    public void updateSlide()
+    {
+        bot.telemetry.addData("Status: ", "In update slide" );
 
-        bot.telemetry.addData("status", "in update slide" + currentSlidePosition );
-        if (!slideIsMoving())
-        {
-            bot.telemetry.addData("SlideStopped", "Slide at" + currentSlidePosition );
+        if( slideChangingState ) {
+            MTR_VS.setPower(maxSlidePower);
+            slideChangingState = false;
         }
 
-        if (currentSlidePosition == slideGrab)
-        {
-            if (!slideIsMoving() && MTR_VS.getPower()!= 0.0)
-            {
-                bot.telemetry.addData("Status", "Slide Not Moving" );
-                MTR_VS.setPower(0.0);
-                MTR_VS.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                return;
-            }
-            else {
-                bot.telemetry.addData("Status", "Slide Moving to Grab" );
-                //MTR_VS.setPower(currentSlidePower);
-            }
-            bot.telemetry.addData("Status", "Slide Moving (Not Grab)" );
-        }
-        else
-        {
-            bot.telemetry.addData("Status", "Slide Moving (not Grab)" );
-            //MTR_VS.setPower(currentSlidePower);
+        // See if the slide
+        if ( !slideIsMoving() &&
+              ( ( MTR_VS.getCurrentPosition() <= slideGrab + 5 ) &&
+                ( MTR_VS.getCurrentPosition() >= slideGrab - 5 ) ) ){
+            MTR_VS.setPower(0.0);
         }
 
         MTR_VS.setTargetPosition(currentSlidePosition);
-
-        if (MTR_VS.getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
-            MTR_VS.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            MTR_VS.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
-        if (MTR_VS.getPower()!= currentSlidePower) {
-            MTR_VS.setPower(currentSlidePower);
-        }
     }
 
     public boolean slideIsMoving() {
@@ -154,13 +140,14 @@ public class Arm
         }
     }
 
-    public void getTelemetryData() {
+    public void getTelemetryData()
+    {
         bot.telemetry.addData("Wrist Current Position: ", SRV_WRIST.getPosition());
-        bot.telemetry.addData("- Desired Wrist Position: ", currentWristPosition );
+        bot.telemetry.addData(" - Desired Wrist Position: ", currentWristPosition );
         bot.telemetry.addData("Claw Current Position: ", SRV_CLAW.getPosition());
-        bot.telemetry.addData("- Desired Claw Position: ", currentClawPosition );
+        bot.telemetry.addData(" - Desired Claw Position: ", currentClawPosition );
         bot.telemetry.addData("Slide Current Position: ", MTR_VS.getCurrentPosition());
-        bot.telemetry.addData("- Desired Slide Position: ", currentSlidePosition);
-        bot.telemetry.addData("- Slide Power: ", currentSlidePower);
+        bot.telemetry.addData(" - Desired Slide Position: ", currentSlidePosition);
+        bot.telemetry.addData(" - Current Slide Power: ", MTR_VS.getPower());
     }
 }
