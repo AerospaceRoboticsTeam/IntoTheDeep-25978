@@ -140,6 +140,10 @@ public class Arm
         }
     }
 
+    public void waitForArm() {
+        while((clawIsMoving() || wristIsMoving() || slideIsMoving()) && bot.opModeIsActive()) {}
+    }
+
     public void getTelemetryData()
     {
         bot.telemetry.addData("Wrist Current Position: ", SRV_WRIST.getPosition());
