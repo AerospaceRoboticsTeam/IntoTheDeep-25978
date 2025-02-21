@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -14,8 +15,8 @@ import org.firstinspires.ftc.teamcode.Libs.GoBilda.GoBildaPinpointDriver;
 
 import java.util.Locale;
 
-@Autonomous(name="No Turn Debug Auto", group="DebugAuto")
-public class OdomoetryNoTurnDebug extends LinearOpMode {
+@Autonomous(name="Main Left Auto", group="CompAuto")
+public class OdometryParkAuto extends LinearOpMode {
 
     // Initialize drive motors
     DcMotor MTR_LF;
@@ -34,23 +35,16 @@ public class OdomoetryNoTurnDebug extends LinearOpMode {
     enum StateMachine {
         WAITING_FOR_START,
         COMPLETED_PATH,
-        DRIVE_TO_TARGET_1,
-        DRIVE_TO_TARGET_2,
-        DRIVE_TO_TARGET_3
+        DRIVE_TO_TARGET_1
     }
 
     // Targets/Points along the robot's drive path
-
-    // Against wall, facing opposing team's side
-    static final Pose2D START_POS = new Pose2D(DistanceUnit.MM, -36 * 25.4, -63 * 25.4, AngleUnit.DEGREES, 0);
-    // Behind tape, facing baskets
-    static final Pose2D TARGET_1 = new Pose2D(DistanceUnit.MM, -53 * 25.4, -53 * 25.4, AngleUnit.DEGREES, 0);
-    // In front of 3rd neutral piece
-    static final Pose2D TARGET_2 = new Pose2D(DistanceUnit.MM, -36 * 25.4, -26 * 25.4, AngleUnit.DEGREES, 0);
-    // Behind tape, facing baskets
-    static final Pose2D TARGET_3 = new Pose2D(DistanceUnit.MM,-53 * 25.4,-53 * 25.4, AngleUnit.DEGREES,0);
+    static Pose2D START_POS;
+    static final Pose2D TARGET_1 = new Pose2D(DistanceUnit.MM, 60 * 25.4, -72 * 25.4 + 451.2 / 2, AngleUnit.DEGREES, 0);
 
     private final double power = 0.2;
+    private double waitTime = 0;
+    private Pose2D currentTarget;
 
     @Override
     public void runOpMode() {
@@ -66,8 +60,6 @@ public class OdomoetryNoTurnDebug extends LinearOpMode {
         arm = new Arm(this);
         arm.closeClaw();
         arm.updateClaw();
-        arm.setWristGuard();
-        arm.updateWrist();
 
         MTR_LF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MTR_RF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -77,18 +69,31 @@ public class OdomoetryNoTurnDebug extends LinearOpMode {
         MTR_LF.setDirection(DcMotorSimple.Direction.REVERSE);
         MTR_LB.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        // Changes starting position for parking
+        if(gamepad1.a) {
+            START_POS = new Pose2D(DistanceUnit.MM, 36 * 25.4, -72 * 25.4 + 451.2 / 2, AngleUnit.DEGREES, 0);
+        }
+        else {
+            START_POS = new Pose2D(DistanceUnit.MM, -36 * 25.4, -72 * 25.4 + 451.2 / 2, AngleUnit.DEGREES, 0);
+            waitTime = 5;
+        }
+
+        // Increase wait time before parking
+        if(gamepad1.b) {
+            waitTime = 10;
+        }
+
         odo = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
         odo.resetPosAndIMU();
 
-        odo.setOffsets(-84.0, -168.0); //these are tuned for 3110-0002-0001 Product Insight #1
+        odo.setOffsets(-84.0, -168.0);
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        // TODO: Check encoder directions
         odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
         // Initializes robot's position
         odo.setPosition(START_POS);
-        telemetry.addData("Position: ", odo.getPosition());
-        telemetry.addData("StartPOS: ", START_POS);
+        telemetry.addData("Position", odo.getPosition());
+        telemetry.addData("Start Position", START_POS);
 
         //nav.setXYCoefficients(0.02,0.002,0.0,DistanceUnit.MM,12);
         //nav.setYawCoefficients(1,0,0.0, AngleUnit.DEGREES,2);
@@ -111,34 +116,28 @@ public class OdomoetryNoTurnDebug extends LinearOpMode {
 
         odo.setPosition(START_POS);
 
+        // Sets wrist to guard position to prepare for dropping a sample
+        arm.setWristGuard();
+        arm.updateWrist();
+
+        // Timer for wait time before parking
+        ElapsedTime waitTimer = new ElapsedTime();
+
         while(opModeIsActive()) {
             odo.update();
 
-            switch (stateMachine){
-                case WAITING_FOR_START:
-                    stateMachine = StateMachine.DRIVE_TO_TARGET_1;
-                    break;
-                case DRIVE_TO_TARGET_1:
-                    if (nav.driveTo(odo.getPosition(), TARGET_1, power, 10)) {
-                        telemetry.addLine("In front of baskets, attempting to score");
-                        telemetry.addLine("Dropped sample into basket, starting next step");
-                        stateMachine = StateMachine.DRIVE_TO_TARGET_2;
-                    }
-                    break;
-                case DRIVE_TO_TARGET_2:
-                    if (nav.driveTo(odo.getPosition(), TARGET_2, power, 0)) {
-                        telemetry.addLine("Behind 3rd neutral sample, attempting to grab");
-                        telemetry.addLine("Grabbed sample, starting next step");
-                        stateMachine = StateMachine.DRIVE_TO_TARGET_3;
-                    }
-                    break;
-                case DRIVE_TO_TARGET_3:
-                    if(nav.driveTo(odo.getPosition(), TARGET_3, power, 0)) {
-                        telemetry.addLine("In front of baskets, attempting to score");
-                        telemetry.addLine("Dropped sample into basket, starting next step");
-                        stateMachine = StateMachine.COMPLETED_PATH;
-                    }
-                    break;
+            if(waitTimer.seconds() > waitTime) {
+                switch (stateMachine) {
+                    case WAITING_FOR_START:
+                        stateMachine = StateMachine.DRIVE_TO_TARGET_1;
+                        break;
+                    case DRIVE_TO_TARGET_1:
+                        currentTarget = TARGET_1;
+                        if (nav.driveTo(odo.getPosition(), TARGET_1, power, 0)) {
+                            stateMachine = StateMachine.COMPLETED_PATH;
+                        }
+                        break;
+                }
             }
 
             //nav calculates the power to set to each motor in a mecanum or tank drive. Use nav.getMotorPower to find that value.
@@ -147,7 +146,13 @@ public class OdomoetryNoTurnDebug extends LinearOpMode {
             MTR_LB.setPower(nav.getMotorPower(DriveToPoint.DriveMotor.LEFT_BACK));
             MTR_RB.setPower(nav.getMotorPower(DriveToPoint.DriveMotor.RIGHT_BACK));
 
-            telemetry.addData("Current state:", stateMachine);
+            telemetry.addData("Current state", stateMachine);
+
+            String formattedPosition = "";
+            if(currentTarget != null) {
+                formattedPosition = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", currentTarget.getX(DistanceUnit.MM), currentTarget.getY(DistanceUnit.MM), currentTarget.getHeading(AngleUnit.DEGREES));
+            }
+            telemetry.addData("Target position", formattedPosition);
 
             Pose2D pos = odo.getPosition();
             String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.MM), pos.getY(DistanceUnit.MM), pos.getHeading(AngleUnit.DEGREES));
@@ -155,29 +160,5 @@ public class OdomoetryNoTurnDebug extends LinearOpMode {
 
             telemetry.update();
         }
-    }
-
-    public void grabSample() {
-        // Moves wrist down and closes claw on sample to grab it, then moves wrist back up
-        arm.setWristGrab();
-        arm.updateWrist();
-        arm.closeClaw();
-        arm.updateClaw();
-        arm.setWristGuard();
-        arm.updateWrist();
-    }
-
-    public void scoreHighBasket() {
-        // Moves arm up, drops piece, and resets arm to pick up a sample later
-        arm.moveHighBasket();
-        arm.updateSlide();
-        arm.setWristDrop();
-        arm.updateWrist();
-        arm.openClaw();
-        arm.updateClaw();
-        arm.setWristGuard();
-        arm.updateWrist();
-        arm.moveGrab();
-        arm.updateSlide();
     }
 }
