@@ -59,6 +59,17 @@ public class TeleOp_25978 extends LinearOpMode
                 arm.moveGrab();
             }
 
+//Experimental code below, tried by Anya 4/24
+            /*
+            if (gamepad2.left_stick_y >= 0.2){
+                arm.manual(gamepad2.left_stick_y*2);
+            }
+            if (gamepad2.left_stick_y <= 0.2){
+                arm.manual(gamepad2.left_stick_y*2);
+            }
+            */
+
+
             //**************************************************************************************
             //--------------------- Per Loop Update Code -------------------------------------------
             // Functions in this section get run every loop of the code. Anything that needs to update

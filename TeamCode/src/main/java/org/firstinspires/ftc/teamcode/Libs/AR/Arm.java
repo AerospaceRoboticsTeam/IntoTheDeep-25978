@@ -72,21 +72,25 @@ public class Arm
     }
 
     public void moveGrab() {
+        //MTR_VS.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         currentSlidePosition = slideGrab;
         bot.telemetry.addData("Status", "In moveGrab" );
     }
 
     public void moveLowBasket() {
+      //  MTR_VS.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         currentSlidePosition = slideLow;
         bot.telemetry.addData("Status", "In moveLowBasket" );
     }
 
     public void moveHighBasket() {
+      //  MTR_VS.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         currentSlidePosition = slideHigh;
         bot.telemetry.addData("Status", "In moveHighBasket" );
    }
 
     public void updateSlide() {
+       // MTR_VS.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         MTR_VS.setTargetPosition( currentSlidePosition);;
     }
 
@@ -99,4 +103,15 @@ public class Arm
         bot.telemetry.addData("- Desired Slide Position: ", currentSlidePosition);
         bot.telemetry.addData("- Slide Power: ", currentSlidePower);
     }
+
+    //Experimental, meant to make the slide controllable by joystick when hanging specimens to avoid overheat
+    //-Anya
+    /*
+    public void manual(double x){
+        MTR_VS.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        MTR_VS.setPower(x);
+
+    }
+     */
+
 }
