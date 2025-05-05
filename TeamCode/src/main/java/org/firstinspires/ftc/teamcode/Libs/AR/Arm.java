@@ -23,7 +23,7 @@ public class Arm
     private double wristGuard = 0.0;
     private double wristDrop = 0.11;
     private double wristGrab = 0.22;
-    private double wristLow = .21;
+    private double wristLow = .20;
     private double currentWristPosition;
 
     LinearOpMode bot;
