@@ -23,6 +23,7 @@ public class Arm
     private double wristGuard = 0.0;
     private double wristDrop = 0.11;
     private double wristGrab = 0.22;
+    private double wristLow = .21;
     private double currentWristPosition;
 
     LinearOpMode bot;
@@ -67,6 +68,9 @@ public class Arm
         currentWristPosition = wristGrab;
     }
 
+    public void setWristLow() {
+        currentWristPosition = wristLow;
+    }
     public void updateWrist() {
         SRV_WRIST.setPosition( currentWristPosition);
     }

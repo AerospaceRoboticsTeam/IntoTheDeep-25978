@@ -41,6 +41,9 @@ public class TeleOp_25978 extends LinearOpMode
             if (gamepad2.a) {
                 arm.setWristGrab();
             }
+            if (gamepad2.x) {
+                arm.setWristLow();
+            }
 
             // Claw controls
             if (gamepad2.left_trigger != 0 ) {
@@ -58,17 +61,6 @@ public class TeleOp_25978 extends LinearOpMode
             } else if (gamepad2.dpad_down) {
                 arm.moveGrab();
             }
-
-//Experimental code below, tried by Anya 4/24
-            /*
-            if (gamepad2.left_stick_y >= 0.2){
-                arm.manual(gamepad2.left_stick_y*2);
-            }
-            if (gamepad2.left_stick_y <= 0.2){
-                arm.manual(gamepad2.left_stick_y*2);
-            }
-            */
-
 
             //**************************************************************************************
             //--------------------- Per Loop Update Code -------------------------------------------
