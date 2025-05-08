@@ -93,6 +93,7 @@ import org.firstinspires.ftc.teamcode.Libs.AR.Arm;
  */
 
 @Autonomous(name="Simple Left Auto", group="SimpleAuto")
+@Disabled
 public class SimpleAuto extends LinearOpMode {
 
     // Initiate all classes we may need

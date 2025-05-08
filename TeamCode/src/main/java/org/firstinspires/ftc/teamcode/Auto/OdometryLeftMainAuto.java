@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Libs.GoBilda.GoBildaPinpointDriver;
 
 import java.util.Locale;
 
-@Autonomous(name="Main Left Auto", group="PinpointAuto")
+@Autonomous(name="Main Left Auto", group="CompAuto")
 public class OdometryLeftMainAuto extends LinearOpMode {
 
     // Initialize drive motors
@@ -47,25 +47,26 @@ public class OdometryLeftMainAuto extends LinearOpMode {
     // Targets/Points along the robot's drive path
 
     // Against wall, facing opposing team's side
-    static final Pose2D START_POS = new Pose2D(DistanceUnit.MM, -36 * 25.4, -63 * 25.4, AngleUnit.DEGREES, 180);
+    static final Pose2D START_POS = new Pose2D(DistanceUnit.MM, -36 * 25.4, -72 * 25.4 + 451.2 / 2, AngleUnit.DEGREES, 180);
     // Behind tape, facing baskets
     static final Pose2D TARGET_1 = new Pose2D(DistanceUnit.MM, -53 * 25.4, -53 * 25.4, AngleUnit.DEGREES, 225);
     // In front of 3rd neutral piece
-    static final Pose2D TARGET_2 = new Pose2D(DistanceUnit.MM, -36 * 25.4, -26 * 25.4, AngleUnit.DEGREES, 180);
+    static final Pose2D TARGET_2 = new Pose2D(DistanceUnit.MM, -40 * 25.4, -53 * 25.4, AngleUnit.DEGREES, 120);
     // Behind tape, facing baskets
     static final Pose2D TARGET_3 = new Pose2D(DistanceUnit.MM,-53 * 25.4,-53 * 25.4, AngleUnit.DEGREES,225);
     // In front of 2nd neutral piece
-    static final Pose2D TARGET_4 = new Pose2D(DistanceUnit.MM, -46 * 25.4, -26 * 25.4, AngleUnit.DEGREES, 180);
+    static final Pose2D TARGET_4 = new Pose2D(DistanceUnit.MM, -48 * 25.4, -53 * 25.4, AngleUnit.DEGREES, 120);
     // Behind tape, facing baskets
     static final Pose2D TARGET_5 = new Pose2D(DistanceUnit.MM, -53 * 25.4, -53 * 25.4, AngleUnit.DEGREES, 225);
     // In front of 1st neutral piece
-    static final Pose2D TARGET_6 = new Pose2D(DistanceUnit.MM, -56 * 25.4, -26 * 25.4, AngleUnit.DEGREES, 180);
+    static final Pose2D TARGET_6 = new Pose2D(DistanceUnit.MM, -56 * 25.4, -53 * 25.4, AngleUnit.DEGREES, 120);
     // Behind tape, facing baskets
     static final Pose2D TARGET_7 = new Pose2D(DistanceUnit.MM, -53 * 25.4, -53 * 25.4, AngleUnit.DEGREES, 225);
     // In front of left side of submersible zone
     static final Pose2D TARGET_8 = new Pose2D(DistanceUnit.MM, -28 * 25.4, 0 * 25.4, AngleUnit.DEGREES, 0);
 
     private final double power = 0.2;
+    private Pose2D currentTarget;
 
     @Override
     public void runOpMode() {
@@ -81,8 +82,6 @@ public class OdometryLeftMainAuto extends LinearOpMode {
         arm = new Arm(this);
         arm.closeClaw();
         arm.updateClaw();
-        arm.setWristGuard();
-        arm.updateWrist();
 
         MTR_LF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MTR_RF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -95,14 +94,14 @@ public class OdometryLeftMainAuto extends LinearOpMode {
         odo = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
         odo.resetPosAndIMU();
 
-        odo.setOffsets(-84.0, -168.0); //these are tuned for 3110-0002-0001 Product Insight #1
+        odo.setOffsets(-84.0, -168.0);
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
         // Initializes robot's position
         odo.setPosition(START_POS);
-        telemetry.addData("Position: ", odo.getPosition());
-        telemetry.addData("StartPOS: ", START_POS);
+        telemetry.addData("Position", odo.getPosition());
+        telemetry.addData("Start Position", START_POS);
 
         //nav.setXYCoefficients(0.02,0.002,0.0,DistanceUnit.MM,12);
         //nav.setYawCoefficients(1,0,0.0, AngleUnit.DEGREES,2);
@@ -123,6 +122,12 @@ public class OdometryLeftMainAuto extends LinearOpMode {
         waitForStart();
         resetRuntime();
 
+        odo.setPosition(START_POS);
+
+        // Sets wrist to guard position to prepare for dropping a sample
+        arm.setWristGuard();
+        arm.updateWrist();
+
         while(opModeIsActive()) {
             odo.update();
 
@@ -131,7 +136,8 @@ public class OdometryLeftMainAuto extends LinearOpMode {
                     stateMachine = StateMachine.DRIVE_TO_TARGET_1;
                     break;
                 case DRIVE_TO_TARGET_1:
-                    if (nav.driveTo(odo.getPosition(), TARGET_1, power, 10)) {
+                    currentTarget = TARGET_1;
+                    if (nav.driveTo(odo.getPosition(), TARGET_1, power, 0)) {
                         telemetry.addLine("In front of baskets, attempting to score");
                         scoreHighBasket();
                         telemetry.addLine("Dropped sample into basket, starting next step");
@@ -139,6 +145,7 @@ public class OdometryLeftMainAuto extends LinearOpMode {
                     }
                     break;
                 case DRIVE_TO_TARGET_2:
+                    currentTarget = TARGET_2;
                     if (nav.driveTo(odo.getPosition(), TARGET_2, power, 0)) {
                         telemetry.addLine("Behind 3rd neutral sample, attempting to grab");
                         grabSample();
@@ -147,6 +154,7 @@ public class OdometryLeftMainAuto extends LinearOpMode {
                     }
                     break;
                 case DRIVE_TO_TARGET_3:
+                    currentTarget = TARGET_3;
                     if(nav.driveTo(odo.getPosition(), TARGET_3, power, 0)) {
                         telemetry.addLine("In front of baskets, attempting to score");
                         scoreHighBasket();
@@ -155,6 +163,7 @@ public class OdometryLeftMainAuto extends LinearOpMode {
                     }
                     break;
                 case DRIVE_TO_TARGET_4:
+                    currentTarget = TARGET_4;
                     if(nav.driveTo(odo.getPosition(), TARGET_4, power,0)) {
                         telemetry.addLine("Behind 2nd neutral sample, attempting to grab");
                         grabSample();
@@ -163,6 +172,7 @@ public class OdometryLeftMainAuto extends LinearOpMode {
                     }
                     break;
                 case DRIVE_TO_TARGET_5:
+                    currentTarget = TARGET_5;
                     if(nav.driveTo(odo.getPosition(), TARGET_5, power,0)) {
                         telemetry.addLine("In front of baskets, attempting to score");
                         scoreHighBasket();
@@ -171,6 +181,7 @@ public class OdometryLeftMainAuto extends LinearOpMode {
                     }
                     break;
                 case DRIVE_TO_TARGET_6:
+                    currentTarget = TARGET_6;
                     if(nav.driveTo(odo.getPosition(), TARGET_6, power,0)) {
                         telemetry.addLine("Behind 1st neutral sample, attempting to grab");
                         grabSample();
@@ -179,6 +190,7 @@ public class OdometryLeftMainAuto extends LinearOpMode {
                     }
                     break;
                 case DRIVE_TO_TARGET_7:
+                    currentTarget = TARGET_7;
                     if(nav.driveTo(odo.getPosition(), TARGET_7, power,0)) {
                         telemetry.addLine("In front of baskets, attempting to score");
                         scoreHighBasket();
@@ -187,6 +199,7 @@ public class OdometryLeftMainAuto extends LinearOpMode {
                     }
                     break;
                 case DRIVE_TO_TARGET_8:
+                    currentTarget = TARGET_8;
                     if(nav.driveTo(odo.getPosition(), TARGET_8, power,0)) {
                         arm.setWristGrab();
                         arm.updateWrist();
@@ -202,7 +215,13 @@ public class OdometryLeftMainAuto extends LinearOpMode {
             MTR_LB.setPower(nav.getMotorPower(DriveToPoint.DriveMotor.LEFT_BACK));
             MTR_RB.setPower(nav.getMotorPower(DriveToPoint.DriveMotor.RIGHT_BACK));
 
-            telemetry.addData("Current state:", stateMachine);
+            telemetry.addData("Current state", stateMachine);
+
+            String formattedPosition = "";
+            if(currentTarget != null) {
+                formattedPosition = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", currentTarget.getX(DistanceUnit.MM), currentTarget.getY(DistanceUnit.MM), currentTarget.getHeading(AngleUnit.DEGREES));
+            }
+            telemetry.addData("Target position", formattedPosition);
 
             Pose2D pos = odo.getPosition();
             String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.MM), pos.getY(DistanceUnit.MM), pos.getHeading(AngleUnit.DEGREES));
@@ -216,23 +235,35 @@ public class OdometryLeftMainAuto extends LinearOpMode {
         // Moves wrist down and closes claw on sample to grab it, then moves wrist back up
         arm.setWristGrab();
         arm.updateWrist();
+        arm.waitForArm();
         arm.closeClaw();
         arm.updateClaw();
+        arm.waitForArm();
         arm.setWristGuard();
         arm.updateWrist();
+        arm.waitForArm();
     }
 
     public void scoreHighBasket() {
         // Moves arm up, drops piece, and resets arm to pick up a sample later
         arm.moveHighBasket();
         arm.updateSlide();
+        arm.waitForArm();
         arm.setWristDrop();
         arm.updateWrist();
+        arm.waitForArm();
         arm.openClaw();
         arm.updateClaw();
+        arm.waitForArm();
         arm.setWristGuard();
         arm.updateWrist();
+        arm.waitForArm();
         arm.moveGrab();
         arm.updateSlide();
+        arm.waitForArm();
+    }
+
+    public boolean motorsAreMoving() {
+        return !(MTR_LF.isBusy() || MTR_LB.isBusy() || MTR_RF.isBusy() || MTR_RB.isBusy()) || (MTR_LF.getPower() > 0.05 || MTR_LB.getPower() > 0.05 || MTR_RF.getPower() > 0.05 || MTR_RB.getPower() > 0.05);
     }
 }

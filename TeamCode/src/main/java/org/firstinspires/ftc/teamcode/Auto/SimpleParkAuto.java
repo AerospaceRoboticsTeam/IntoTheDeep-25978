@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 
-@Autonomous(name="CompAuto", group="Robot")
+@Autonomous(name="Simple Park Auto", group="SimpleAuto")
 @Disabled
 public class SimpleParkAuto extends LinearOpMode {
 
